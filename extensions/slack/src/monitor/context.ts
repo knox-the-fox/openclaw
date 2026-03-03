@@ -79,6 +79,7 @@ export type SlackMonitorContext = {
     type?: SlackMessageEvent["channel_type"];
     topic?: string;
     purpose?: string;
+    isExtShared?: boolean;
   }>;
   resolveUserName: (userId: string) => Promise<{ name?: string }>;
   setSlackThreadStatus: (params: {
@@ -224,7 +225,9 @@ export function createSlackMonitorContext(params: {
       const topic = channel && "topic" in channel ? (channel.topic?.value ?? undefined) : undefined;
       const purpose =
         channel && "purpose" in channel ? (channel.purpose?.value ?? undefined) : undefined;
-      const entry = { name, type, topic, purpose };
+      const isExtShared =
+        channel && "is_ext_shared" in channel ? Boolean(channel.is_ext_shared) : false;
+      const entry = { name, type, topic, purpose, isExtShared };
       channelCache.set(channelId, entry);
       return entry;
     } catch {
