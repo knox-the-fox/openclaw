@@ -225,8 +225,7 @@ export function createSlackMonitorContext(params: {
       const topic = channel && "topic" in channel ? (channel.topic?.value ?? undefined) : undefined;
       const purpose =
         channel && "purpose" in channel ? (channel.purpose?.value ?? undefined) : undefined;
-      const isExtShared =
-        channel && "is_ext_shared" in channel ? Boolean(channel.is_ext_shared) : false;
+      const isExtShared = Boolean(channel?.is_ext_shared);
       const entry = { name, type, topic, purpose, isExtShared };
       channelCache.set(channelId, entry);
       return entry;
