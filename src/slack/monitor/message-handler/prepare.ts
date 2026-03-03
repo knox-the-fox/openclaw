@@ -79,6 +79,7 @@ type SlackConversationContext = {
     type?: SlackMessageEvent["channel_type"];
     topic?: string;
     purpose?: string;
+    isExtShared?: boolean;
   };
   channelName?: string;
   resolvedChannelType: ReturnType<typeof normalizeSlackChannelType>;
@@ -530,7 +531,12 @@ export async function prepareSlackMessage(params: {
   if (!resolvedMessageContent) {
     return null;
   }
-  const { rawBody, effectiveDirectMedia } = resolvedMessageContent;
+  let { rawBody, effectiveDirectMedia } = resolvedMessageContent;
+
+  // Prepend [Slack Connect] tag for external shared channels
+  if (channelInfo.isExtShared) {
+    rawBody = `[Slack Connect]\n${rawBody}`;
+  }
 
   const ackReaction = resolveAckReaction(cfg, route.agentId, {
     channel: "slack",
