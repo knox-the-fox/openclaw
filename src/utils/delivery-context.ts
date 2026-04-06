@@ -17,6 +17,7 @@ export type DeliveryContextSessionSource = {
   lastThreadId?: string | number;
   origin?: {
     provider?: string;
+    to?: string;
     accountId?: string;
     threadId?: string | number;
   };
@@ -186,7 +187,7 @@ export function deliveryContextFromSession(
   const source: DeliveryContextSessionSource = {
     channel: entry.channel ?? entry.origin?.provider,
     lastChannel: entry.lastChannel,
-    lastTo: entry.lastTo,
+    lastTo: entry.lastTo ?? entry.origin?.to,
     lastAccountId: entry.lastAccountId ?? entry.origin?.accountId,
     lastThreadId: entry.lastThreadId ?? entry.deliveryContext?.threadId ?? entry.origin?.threadId,
     origin: entry.origin,
