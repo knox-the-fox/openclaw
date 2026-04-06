@@ -13,6 +13,7 @@ type DeliveryContextSource = {
   lastThreadId?: string | number;
   origin?: {
     provider?: string;
+    to?: string;
     accountId?: string;
     threadId?: string | number;
   };
@@ -101,7 +102,7 @@ function deliveryContextFromSession(entry?: DeliveryContextSource): DeliveryCont
       entry.lastChannel ??
       entry.channel ??
       entry.origin?.provider,
-    to: entry.deliveryContext?.to ?? entry.lastTo,
+    to: entry.deliveryContext?.to ?? entry.lastTo ?? entry.origin?.to,
     accountId: entry.deliveryContext?.accountId ?? entry.lastAccountId ?? entry.origin?.accountId,
     threadId: entry.deliveryContext?.threadId ?? entry.lastThreadId ?? entry.origin?.threadId,
   });
