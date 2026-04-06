@@ -447,4 +447,105 @@ describe("subagent announce seam flow", () => {
       }),
     );
   });
+
+  it("propagates threadId from requesterOrigin to Slack announce delivery", async () => {
+    loadSessionStoreMock.mockImplementation(() => ({
+      "agent:main:slack:direct:u02gyht6mcz:thread:1775497096.054149": {
+        sessionId: "session-slack-thread",
+        updatedAt: Date.now(),
+        lastChannel: "slack",
+        lastTo: "user:U02GYHT6MCZ",
+        lastAccountId: "default",
+        lastThreadId: "1775497096.054149",
+        deliveryContext: {
+          channel: "slack",
+          to: "user:U02GYHT6MCZ",
+          accountId: "default",
+          threadId: "1775497096.054149",
+        },
+      },
+    }));
+
+    const didAnnounce = await runSubagentAnnounceFlow({
+      childSessionKey: "agent:knox-engineer:subagent:test-123",
+      childRunId: "run-slack-thread-announce",
+      requesterSessionKey: "agent:main:slack:direct:u02gyht6mcz:thread:1775497096.054149",
+      requesterOrigin: {
+        channel: "slack",
+        to: "user:U02GYHT6MCZ",
+        accountId: "default",
+        threadId: "1775497096.054149",
+      },
+      requesterDisplayKey: "main",
+      task: "investigate thread bug",
+      timeoutMs: 10,
+      cleanup: "keep",
+      waitForCompletion: false,
+      startedAt: 10,
+      endedAt: 20,
+      outcome: { status: "ok" },
+      roundOneReply: "PR opened",
+      expectsCompletionMessage: true,
+    });
+
+    expect(didAnnounce).toBe(true);
+    expect(agentSpy).toHaveBeenCalledTimes(1);
+    const agentCall = agentSpy.mock.calls[0]?.[0];
+    expect(agentCall?.params).toEqual(
+      expect.objectContaining({
+        deliver: true,
+        channel: "slack",
+        to: "user:U02GYHT6MCZ",
+        accountId: "default",
+        threadId: "1775497096.054149",
+      }),
+    );
+  });
+
+  it("propagates threadId even when session entry has no threadId", async () => {
+    loadSessionStoreMock.mockImplementation(() => ({
+      "agent:main:slack:direct:u02gyht6mcz:thread:1775497096.054149": {
+        sessionId: "session-slack-no-thread",
+        updatedAt: Date.now(),
+        lastChannel: "slack",
+        lastTo: "user:U02GYHT6MCZ",
+        lastAccountId: "default",
+      },
+    }));
+
+    const didAnnounce = await runSubagentAnnounceFlow({
+      childSessionKey: "agent:knox-engineer:subagent:test-456",
+      childRunId: "run-slack-thread-no-entry",
+      requesterSessionKey: "agent:main:slack:direct:u02gyht6mcz:thread:1775497096.054149",
+      requesterOrigin: {
+        channel: "slack",
+        to: "user:U02GYHT6MCZ",
+        accountId: "default",
+        threadId: "1775497096.054149",
+      },
+      requesterDisplayKey: "main",
+      task: "investigate thread bug",
+      timeoutMs: 10,
+      cleanup: "keep",
+      waitForCompletion: false,
+      startedAt: 10,
+      endedAt: 20,
+      outcome: { status: "ok" },
+      roundOneReply: "PR opened",
+      expectsCompletionMessage: true,
+    });
+
+    expect(didAnnounce).toBe(true);
+    expect(agentSpy).toHaveBeenCalledTimes(1);
+    const agentCall = agentSpy.mock.calls[0]?.[0];
+    expect(agentCall?.params).toEqual(
+      expect.objectContaining({
+        deliver: true,
+        channel: "slack",
+        to: "user:U02GYHT6MCZ",
+        accountId: "default",
+        threadId: "1775497096.054149",
+      }),
+    );
+  });
 });
